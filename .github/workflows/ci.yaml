@@ -1,0 +1,39 @@
+name: Java Maven CI
+on:
+  push:
+    branch:
+      - main
+
+jobs:
+  build and publish:
+    runs-on: ubuntu latest
+
+    permissions:
+      contents:read
+      packages:write
+
+      steps:
+      - name: Checkout Repository
+        uses: actions/checkoutv4
+
+        
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+          server-id: github
+          server-username: GITHUB_ACTOR
+          server-password: GITHUB_TOKEN
+      
+      - name: Build Project
+        working-directory: app
+        run: mvn clean package
+
+      - name: Publish Package
+        working-directory: app
+        run: mvn deploy
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ACTOR: ${{ github.actor }}
